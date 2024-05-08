@@ -4,6 +4,7 @@ const User = require('../models/user.js'); // Assuming you have a User model
 
 const authMiddleware = (allowedRoles = []) => {
     return async (req, res, next) => {
+        console.log(req.body)
         // Verify JWT token
         const token = req.headers.authorization;
 

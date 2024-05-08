@@ -1,26 +1,72 @@
 const bcrypt = require('bcrypt');
 const Student = require('../models/student.js');
 const StudentFeeProfile = require("../models/fees/studentFeeProfile.js")
-const { randomNumber, randomString, generateUsername, generatePassword } = require('../utils/generators.js');
 
-const Parent = require('../models/parent.js');
+
 
 exports.addStudent = async (req, res) => {
-    const { firstName, lastName, dateOfBirth, gender, address, email, phoneNumber, classId, feeStructures, section } = req.body;
+    
+    const {
+        admission_Number,
+        roll_Number,
+        first_Name,
+        last_Name,
+        date_Of_Birth,
+        gender,
+        permanent_Address,
+        address_For_Correspondence,
+        contact_Number,
+        alternet_Contact_Number,
+        email,
+        nationality,
+        religion,
+        category,
+        date_Of_Admission,
+        blood_Group,
+        father_Name,
+        father_Occupation,
+        mother_Name,
+        mother_Occupation,
+        student_Photo,
+        aadhar_number,
+        due_amount,
+        class_Id,
+        section,
+        session,
+        feeStructures
+    } = req.body;
 
     try {
         // Create a new student
         const newStudent = new Student({
-            firstName,
-            lastName,
-            dateOfBirth,
+            admission_Number,
+            roll_Number,
+            first_Name,
+            last_Name,
+            date_Of_Birth,
             gender,
-            address,
+            permanent_Address,
+            address_For_Correspondence,
+            contact_Number,
+            alternet_Contact_Number,
             email,
-            phoneNumber,
-            class: classId,
-            section
+            nationality,
+            religion,
+            category,
+            date_Of_Admission,
+            blood_Group,
+            father_Name,
+            father_Occupation,
+            mother_Name,
+            mother_Occupation,
+            student_Photo,
+            aadhar_number,
+            due_amount,
+            class_Id,
+            section,
+            session
         });
+
         const savedStudent = await newStudent.save();
 
         // Create a fee profile for the student and associate fee structures
@@ -31,29 +77,10 @@ exports.addStudent = async (req, res) => {
         });
         await newFeeProfile.save();
 
-        // Create a parent for the student
-        const parentUsername = generateUsername(firstName, lastName); // Generate username using student's name
-        let random = randomNumber(99999, 999999)
-        const parentPassword = random.toString(); // Generate a random password
-
-        const hashedPassword = await bcrypt.hash(parentPassword, 10);
-
-        const newParent = new Parent({
-            username: parentUsername,
-            password: hashedPassword,
-            
-            // Add other relevant parent information here
-        });
-
-        // Associate the new student with the parent
-        newParent.students.push(savedStudent._id);
-
-        // Save the parent to the database
-        await newParent.save();
 
         res.status(201).json({
             message: 'Student and Parent created successfully',
-            result: { student: savedStudent, parent: { username: parentUsername, password: parentPassword } }
+            result: savedStudent
         });
     } catch (error) {
         console.error('Error adding student:', error);
@@ -61,11 +88,10 @@ exports.addStudent = async (req, res) => {
     }
 };
 
-
 exports.getStudents = async (req, res) => {
     try {
         // Fetch all students
-        const students = await Student.find().populate('class');
+        const students = await Student.find().populate('class_Id');
         res.status(200).json(students);
     } catch (error) {
         console.error('Error fetching students:', error);
@@ -77,7 +103,7 @@ exports.getStudentById = async (req, res) => {
     const studentId = req.params.id;
     try {
         // Fetch student by ID
-        const student = await Student.findById(studentId).populate('class');;
+        const student = await Student.findById(studentId).populate('class_Id');;
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
         }
@@ -90,7 +116,8 @@ exports.getStudentById = async (req, res) => {
 
 exports.updateStudent = async (req, res) => {
     const studentId = req.params.id;
-    const { firstName, lastName, dateOfBirth, gender, address, email, phoneNumber, classId } = req.body;
+    const updateFields = req.body;
+
     try {
         // Check if student exists
         let student = await Student.findById(studentId);
@@ -99,24 +126,31 @@ exports.updateStudent = async (req, res) => {
         }
 
         // Update student fields
-        student.firstName = firstName || student.firstName;
-        student.lastName = lastName || student.lastName;
-        student.dateOfBirth = dateOfBirth || student.dateOfBirth;
-        student.gender = gender || student.gender;
-        student.address = address || student.address;
-        student.email = email || student.email;
-        student.phoneNumber = phoneNumber || student.phoneNumber;
-        student.class = classId || student.class;
+        for (let key in updateFields) {
+            if (updateFields.hasOwnProperty(key)) {
+                student[key] = updateFields[key];
+            }
+        }
 
         // Save updated student
-        await student.save();
+        const updatedStudent = await student.save();
 
-        res.status(200).json({ message: 'Student updated successfully', result: student });
+        // Update student fee profile if fee structures are provided
+        if (updateFields.hasOwnProperty('feeStructures')) {
+            const studentFeeProfile = await StudentFeeProfile.findOne({ studentId });
+            if (studentFeeProfile) {
+                studentFeeProfile.feeStructures = updateFields['feeStructures'];
+                await studentFeeProfile.save();
+            }
+        }
+
+        res.status(200).json({ message: 'Student updated successfully', result: updatedStudent });
     } catch (error) {
         console.error('Error updating student:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 exports.deleteStudent = async (req, res) => {
     const studentId = req.params.id;
@@ -179,7 +213,7 @@ exports.getStudentsByClassOrSection = async (req, res) => {
     const { classId, section } = req.params;
 
     try {
-        let query = { class: classId };
+        let query = { class_Id: classId };
 
         // Check if section is provided
         if (section) {
@@ -187,7 +221,7 @@ exports.getStudentsByClassOrSection = async (req, res) => {
         }
 
         // Fetch students based on the constructed query
-        const students = await Student.find(query).populate('class');;
+        const students = await Student.find(query).populate('class_Id');;
 
         res.status(200).json(students);
     } catch (error) {

@@ -1,10 +1,11 @@
 const StudentFeeProfile = require('../models/fees/studentFeeProfile.js');
 
 exports.getStudentFeeProfile = async (req, res) => {
+    console.log("request received")
     const studentId = req.params.studentId;
     try {
         // Fetch student's fee profile by student ID
-        const feeProfile = await StudentFeeProfile.findOne({ studentId });
+        const feeProfile = await StudentFeeProfile.findOne({ studentId }).populate("feeStructures");
         if (!feeProfile) {
             return res.status(404).json({ message: 'Fee profile not found' });
         }
