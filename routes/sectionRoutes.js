@@ -18,4 +18,6 @@ router.put('/update/:id', authMiddleware(["admin", "moderator"]), sectionControl
 // Delete a section
 router.delete('/delete/:id', authMiddleware(["admin", "moderator"]), sectionController.deleteSection);
 
+
+
 module.exports = router;

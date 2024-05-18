@@ -5,7 +5,7 @@ const StudentFeeProfile = require("../models/fees/studentFeeProfile.js")
 
 
 exports.addStudent = async (req, res) => {
-    
+
     const {
         admission_Number,
         roll_Number,
@@ -226,6 +226,35 @@ exports.getStudentsByClassOrSection = async (req, res) => {
         res.status(200).json(students);
     } catch (error) {
         console.error('Error fetching students by class or section:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+
+
+
+exports.getLastGeneratedAdmissionNumber = async (req, res) => {
+    try {
+        // Find the last student sorted by admission number in descending order
+        const lastStudent = await Student.findOne().sort({ admission_Number: -1 });
+
+        // If no student found, return a default admission number
+        if (!lastStudent) {
+            return res.status(200).json({ lastGeneratedAdmissionNumber: "AD-1000" }); // Assuming "AD-1000" is the default admission number
+        }
+
+        // Extract the numeric part of the admission number and increment it
+        const numericPart = parseInt(lastStudent.admission_Number.split("-")[1]);
+        const nextNumericPart = numericPart + 1;
+
+        // Generate the next admission number by combining the prefix with the incremented numeric part
+        const prefix = lastStudent.admission_Number.split("-")[0];
+        const nextAdmissionNumber = `${prefix}-${nextNumericPart}`;
+
+        res.status(200).json({ lastGeneratedAdmissionNumber: nextAdmissionNumber });
+    } catch (error) {
+        console.error('Error fetching last generated admission number:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };

@@ -6,10 +6,7 @@ const StudentFeeProfileSchema = new mongoose.Schema({
     studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
     feeStructures: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FeeStructure' }],
     payments: [{
-        amount: { type: Number, required: true },
-        paymentDate: { type: Date, default: Date.now },
-        feeType: { type: String, required: true }
-        // Add any additional fields as needed
+        type: mongoose.Schema.Types.ObjectId, ref: 'Payment'
     }],
     // Add any additional fields as needed
 });

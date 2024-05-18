@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // Define the schema for student
 const studentSchema = new mongoose.Schema({
   admission_Number: {
-    type: Number,
+    type: String,
     required: true
   },
   roll_Number: {

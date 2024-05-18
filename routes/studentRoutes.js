@@ -8,7 +8,8 @@ const {
     getStudentsByClass,
     getStudentsByClassAndSection,
     getStudentsByQuery,
-    getStudentsByClassOrSection
+    getStudentsByClassOrSection,
+    getLastGeneratedAdmissionNumber
 } = require("../controllers/studentController");
 const authMiddleware = require("../middleware/auth.js");
 
@@ -26,6 +27,7 @@ router.get('/byClass/:classId', authMiddleware(["admin", "moderator"]), getStude
 router.get('/byClassAndSection/:classId/:section', authMiddleware(["admin", "moderator"]), getStudentsByClassAndSection);
 router.get('/students/query', authMiddleware(["admin", "moderator"]), getStudentsByQuery);
 router.get('/byClassOrSection/:classId/:section?', authMiddleware(["admin", "moderator"]), getStudentsByClassOrSection);
+router.get('/getLastAdmissionNumber', authMiddleware(["admin", "moderator"]), getLastGeneratedAdmissionNumber);
 
 
 module.exports = router;

@@ -18,7 +18,31 @@ const PaymentSchema = new Schema({
         type: Date,
         default: Date.now
     },
+    studentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student"
+    },
+    receipt_no: {
+        type: String,
+    },
+    feePaid: [{
+        feeType: { type: String, required: true }, // Reference to the fee type
+        amount: { type: Number, required: true }, // Amount of the fee
+    }],
+    paymentMethod: {
+        type: String,
+        required: true
+    },
+    amountPaid: {
+        type: Number,
+        required: true
+    },
+    tax: {
+        type: Number
+    }
 });
+
+
 
 
 
