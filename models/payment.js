@@ -4,15 +4,12 @@ const Schema = mongoose.Schema;
 const PaymentSchema = new Schema({
     razorpay_order_id: {
         type: String,
-        required: true,
     },
     razorpay_payment_id: {
         type: String,
-        required: true,
     },
     razorpay_signature: {
         type: String,
-        required: true,
     },
     date: {
         type: Date,
@@ -20,10 +17,12 @@ const PaymentSchema = new Schema({
     },
     studentId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Student"
+        ref: "Student",
+        required: true
     },
     receipt_no: {
         type: String,
+        required: true
     },
     feePaid: [{
         feeType: { type: String, required: true }, // Reference to the fee type
@@ -36,15 +35,8 @@ const PaymentSchema = new Schema({
     amountPaid: {
         type: Number,
         required: true
-    },
-    tax: {
-        type: Number
     }
 });
-
-
-
-
 
 const Payment = mongoose.model('Payment', PaymentSchema);
 

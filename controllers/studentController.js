@@ -201,14 +201,23 @@ exports.getStudentsByClassAndSection = async (req, res) => {
 exports.getStudentsByQuery = async (req, res) => {
     const query = req.query;
     try {
+        // Convert query to case-insensitive regular expressions
+        const caseInsensitiveQuery = {};
+        for (const key in query) {
+            if (query.hasOwnProperty(key)) {
+                caseInsensitiveQuery[key] = { $regex: new RegExp(query[key], 'i') };
+            }
+        }
+        
         // Fetch students by custom query
-        const students = await Student.find(query);
+        const students = await Student.find(caseInsensitiveQuery).populate('class_Id');
         res.status(200).json(students);
     } catch (error) {
         console.error('Error fetching students by query:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 exports.getStudentsByClassOrSection = async (req, res) => {
     const { classId, section } = req.params;
 

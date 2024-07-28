@@ -1,20 +1,25 @@
 const StudentFeeProfile = require('../models/fees/studentFeeProfile.js');
 
 exports.getStudentFeeProfile = async (req, res) => {
-    console.log("request received")
+    console.log("request received");
     const studentId = req.params.studentId;
     try {
-        // Fetch student's fee profile by student ID
-        const feeProfile = await StudentFeeProfile.findOne({ studentId }).populate("feeStructures").populate("payments");
+        // Fetch student's fee profile by student ID and populate feeStructures and payments
+        const feeProfile = await StudentFeeProfile.findOne({ studentId })
+            .populate("feeStructures")
+            .populate('payments');
+
         if (!feeProfile) {
             return res.status(404).json({ message: 'Fee profile not found' });
         }
+
         res.status(200).json(feeProfile);
     } catch (error) {
         console.error('Error fetching fee profile:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 exports.updateStudentFeeProfile = async (req, res) => {
     const studentId = req.params.studentId;
@@ -39,5 +44,3 @@ exports.updateStudentFeeProfile = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-
